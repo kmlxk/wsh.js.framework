@@ -2,10 +2,10 @@
 if (typeof __framework_js != 'undefined') {return;} __framework_js = true;
 
 
-require('wsh.js.framework/base.js')
-require('wsh.js.framework/common.lang.js')
-require('wsh.js.framework/system.js')
-require('wsh.js.framework/system.io.js')
+require('base.js')
+require('common.lang.js')
+require('system.js')
+require('system.io.js')
 
 
 // JScript本身的脚本解析器cscript.exe已经可以很好的识别引号"中包含空格的参数

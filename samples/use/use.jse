@@ -1,0 +1,66 @@
+__WSH_JS_FRAMEWORK_DIR = 'K:\\scripts\\wsh.js.framework\\';
+function require(filename) {
+	if (typeof(__fso) == 'undefined') {__fso = new ActiveXObject("Scripting.FileSystemObject");}
+	var f = __fso.OpenTextFile(__WSH_JS_FRAMEWORK_DIR + filename, 1), ret = "";
+	while (!f.AtEndOfStream) { ret += f.ReadLine() + "\n"; }
+	f.Close(); eval(ret);
+}
+require('framework.js');
+
+// 应用程序开始
+var App = function() {
+	this.title = 'use';
+	this.version = 'v1.0';
+	this.pathes = {
+		'git' : 'F:\\Program Files\\Git\\bin',
+		'python' : 'F:\\Python27',
+		'php' : 'K:\\apmxe\\php5',
+		'vc6' : 'F:\\Program Files\\Microsoft Visual Studio\\VC98\\Bin'
+	};
+};
+App.prototype = {
+	help : function() {
+		console.log(this.title + ' ' + this.version);
+		console.log("快速导入应用程序路径到环境变量中");
+		console.log("示例：use git");
+	},
+	exec : function() {
+		var cp = new CmdLineParser(function2Array(WScript.Arguments));
+		if (cp.params.length == 0 ||
+			cp.switches.contains('?') ||
+			cp.switches.contains('h')
+			) {
+			this.help();
+			return;
+		}
+		var ret = [];
+		for (var k in cp.params) {
+			var key = cp.params[k];
+			if (typeof(key) == 'function') {
+				continue;
+			}
+			if (this.pathes.containsKey(key)) {
+				ret.push(this.pathes[key]);
+			} else {
+				console.log('未定义的应用程序: ' + key);
+			}
+		}
+		if (ret.length == 0) {
+			return;
+		}
+		var new_path = ret.join(';');
+		var cur_path = runtime.env('path').trim();
+		if (cur_path.substr(cur_path.length - 1, 1) != ';') {
+			//new_path = ';' + new_path;
+		}
+		//var tmpfile = runtime.curdir + '~' + Math.floor(Math.random() * 1000000) + '.cmd';
+		//tmpfile = 'tmp_use_path.cmd';
+		//var tf = new System.IO.TextFile();
+		var cmd = 'path '+ new_path + ';%path%' + ' && start';
+		runtime.shell.run('cmd /c "'+cmd+'"');
+		//tf.save(tmpfile, cmd)
+		//runtime.shell.run(tmpfile);
+	}
+};
+var app = new App();
+app.exec();
