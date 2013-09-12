@@ -1,0 +1,9 @@
+Many developers have difficult in writing Windows shell command or batch file which has old-fashion syntax and is hard to debug.
+However, there is another way, Windows Script Host.
+With this framework you will be able to write shell command files fast than ever. 
+Enjoy!
+
+体会过批处理的天书语法，试过PowerShell的无逻辑控制，Python动辄几十兆的安装包，NodeJS只认Linux环境，你是不是也像我一样觉得在Windows下写个简单脚本或者命令行程序，怎么就如此复杂的不可理喻。
+经过不断尝试，转了一圈回来才发现Windows Script Host才是Windows批处理的终结者。
+本框架致力于将JavaScript发展的最新技术和思想融入Windows Script Host中。
+让你用最省力的方式完成一个个小型的脚本和工具，提高工作效率。
