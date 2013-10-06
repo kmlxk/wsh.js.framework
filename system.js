@@ -25,10 +25,21 @@ Console = function() {
 	this.logger = new System.Logger('console', System.Logger.TRACE);
 };
 Console.prototype = {
-	log: function() {
+        log: function() {
 		for (var i = 0; i < arguments.length; i++) {
 			this.logger.log(arguments[i]);
 		}
+        },
+	write: function() {
+		for (var i = 0; i < arguments.length; i++) {
+			WScript.Echo(arguments[i]);
+		}
+	},
+	read: function(count) {
+            if (typeof count == 'undefined') {
+                count = 1;
+            }
+            return WScript.StdIn.read(count);
 	},
 	debug: function() {
 		this.log.apply(this, arguments);
