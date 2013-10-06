@@ -1,5 +1,5 @@
 (function(){
-if (typeof __system_js != 'undefined') {return;} __system_js = true;
+if (typeof __system_io_js != 'undefined') {return;} __system_io_js = true;
 
 namespace('System.IO');
 
@@ -10,13 +10,36 @@ System.IO.FileSystem = function(undefine) {
 	}
 	this.fso = System.IO.FileSystem.fso;
 }
-System.IO.FileSystem.prototype = {
-	Delete: function(filename) {
-		f1 = this.fso.GetFile(filename);
+extend(System.IO.FileSystem, {
+	deleteFile: function(filename) {
+		f1 = runtime.fso.GetFile(filename);
 		f1.Delete();
+	},
+	getSubFiles: function(path) {    
+            var ret = [],
+            folder = runtime.fso.GetFolder(path),
+            subfolder = '',
+            e = new Enumerator(folder.Files);
+            for (;!e.atEnd(); e.moveNext()) {
+                subfolder = e.item().Name;
+                ret.push(path + '\\' + subfolder);
+            }
+            return ret;
+	},
+	getSubFolders: function(path) {
+            var ret = [],
+            folder = runtime.fso.GetFolder(path),
+            subfolder = '',
+            e = new Enumerator(folder.SubFolders);
+            for (;!e.atEnd(); e.moveNext()) {
+                subfolder = e.item().Name;
+                ret.push(path + '\\' + subfolder);
+            }
+            return ret;
 	}
-}
+});
 FileSystem = new System.IO.FileSystem();
+
 
 System.IO.TextFile = function(undefine) {
 	// 静态变量, 用于缓存

@@ -22,7 +22,7 @@ namespace = function(names, undefined) {
 	}
 }
 
-extend = function(src, dest) {
+extend = function(dest, src) {
 	for (var k in src) {
 		dest[k] = src[k];
 	}
