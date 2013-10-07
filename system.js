@@ -26,14 +26,18 @@ Console = function() {
 };
 Console.prototype = {
         log: function() {
+            var msg = [];
 		for (var i = 0; i < arguments.length; i++) {
-			this.logger.log(arguments[i]);
+                    msg.push(arguments[i]);
 		}
+                this.logger.log(msg.join(','));
         },
 	write: function() {
+		var msg = [];
 		for (var i = 0; i < arguments.length; i++) {
-			WScript.Echo(arguments[i]);
+                    msg.push(arguments[i]);
 		}
+                WScript.Echo(msg.join(','));
 	},
 	read: function(count) {
             if (typeof count == 'undefined') {
