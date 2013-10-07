@@ -113,11 +113,26 @@ App.prototype = {
             console.log('未找到应用程序');
             console.read();
         } else {
+            if (dirs.length > 10) {
+                console.log('名称不唯一，多于10个应用程序');
+                return;
+            }
             console.log('名称不唯一，找到以下多个应用程序:');
             for(var i = 0; i < dirs.length; i++){
-                console.log(dirs[i]);
+                console.log((i + 1) + ': ' + dirs[i]);
             }
-            console.read();
+            console.log('输入数字需要选择要运行的应用程序:');
+            var ch = console.read();
+            var index = ch.charCodeAt(0) - '0'.charCodeAt(0) - 1;
+            // find matched exe file
+            var ret = this.getMatchExe(cp.params[0], dirs[index]);
+            if (ret.length == 0) {
+                ret = this.getExe(cp.params[0], dirs[index]);
+            }
+            if (ret.length > 0) {
+                console.log(ret[0]);
+                runtime.shell.run('"' + ret[0] + '"');
+            }
         }
     //tf.save(tmpfile, cmd)
     //runtime.shell.run(tmpfile);
