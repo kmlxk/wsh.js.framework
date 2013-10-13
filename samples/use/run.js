@@ -31,19 +31,23 @@ App.prototype = {
     },
     // 获取文件夹下的全部exe
     getExe : function(name, path) {
-        var ret = [],
-        folder = runtime.fso.GetFolder(path),
-        subfolder = '',
-        e = new Enumerator(folder.Files);   
-        for (;!e.atEnd(); e.moveNext()) {
-            subfolder = e.item().Name;
-            if (typeof subfolder == 'undefined') {
-                continue;
+        try {
+            var ret = [],
+            folder = runtime.fso.GetFolder(path),
+            subfolder = '',
+            e = new Enumerator(folder.Files);   
+            for (;!e.atEnd(); e.moveNext()) {
+                subfolder = e.item().Name;
+                if (typeof subfolder == 'undefined') {
+                    continue;
+                }
+                if (subfolder.toLowerCase().indexOf('.exe') >= 0) {
+                    ret.push(path + subfolder);
+                }
             }
-            if (subfolder.toLowerCase().indexOf('.exe') >= 0) {
-                ret.push(path + subfolder);
-            }
-        }
+        } catch (ex) {
+            return [];
+        }		
         return ret;
     },
     // 获取匹配名称的exe文件
@@ -78,6 +82,22 @@ App.prototype = {
         }
         return ret;
     },
+    findAndRun : function(name, path) {
+        var ret = this.getMatchExe(name, path);
+        if (ret.length == 0) {
+            ret = this.getExe(name, path + 'bin\\');
+        }
+        if (ret.length == 0) {
+            ret = this.getExe(name, path + 'app\\');
+        }
+        if (ret.length == 0) {
+            ret = this.getExe(name, path);
+        }
+        if (ret.length > 0) {
+            console.log(ret[0]);
+            runtime.shell.run('"' + ret[0] + '"');
+        }		
+    },
     // 入口
     main : function() {
         // command line
@@ -101,14 +121,8 @@ App.prototype = {
         // prepare to run
         if (dirs.length == 1) {
             // find matched exe file
-            var ret = this.getMatchExe(cp.params[0], dirs[0]);
-            if (ret.length == 0) {
-                ret = this.getExe(cp.params[0], dirs[0]);
-            }
-            if (ret.length > 0) {
-                console.log(ret[0]);
-                runtime.shell.run('"' + ret[0] + '"');
-            }
+            this.findAndRun(cp.params[0], dirs[0]);
+            
         } else if (dirs.length == 0) {
             console.log('未找到应用程序');
             console.read();
@@ -124,15 +138,13 @@ App.prototype = {
             console.log('输入数字需要选择要运行的应用程序:');
             var ch = console.read();
             var index = ch.charCodeAt(0) - '0'.charCodeAt(0) - 1;
+            if (index < 0 || index >= dirs.length) {
+                console.log('Index out of Bound');
+                return;
+            }
             // find matched exe file
-            var ret = this.getMatchExe(cp.params[0], dirs[index]);
-            if (ret.length == 0) {
-                ret = this.getExe(cp.params[0], dirs[index]);
-            }
-            if (ret.length > 0) {
-                console.log(ret[0]);
-                runtime.shell.run('"' + ret[0] + '"');
-            }
+            this.findAndRun(cp.params[0], dirs[index]);
+
         }
     //tf.save(tmpfile, cmd)
     //runtime.shell.run(tmpfile);
