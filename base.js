@@ -1,26 +1,38 @@
 (function(){
 if (typeof __base_js != 'undefined') {return;} __base_js = true;
 
+print = function(msg) {
+	WScript.Echo(msg);
+};
+Template = function(temp, data) {
+	return temp.replace(/\{\$(.*?)\}/g,
+	function($0, $1, $2, $3, D) {
+		var A = $1.split('.'),
+		F = A.slice(1).join('.'),
+		e = D || data;
+		return F ? arguments.callee($0, F, $2, $3, e[A[0]]) : (e[$1]!=undefine? e[$1] : $0);
+	});
+};
 
 // 获取全局变量， window/this
-getGlobal = function() {
+global = getGlobal = function() {
 	if (typeof(window) != 'undefined') {
 		return window;
 	}
 	return this;
-}
+};
 // 声明命名空间
-namespace = function(names, undefined) {
+namespace = function(names, undefine) {
 	var sep = names.split('.'),
 		i,
 		scope = getGlobal();
 	for (i = 0; i < sep.length; i++) {
-		if (scope[sep[i]] == undefined) {
+		if (scope[sep[i]] == undefine) {
 			scope[sep[i]] = {};
 		}
 		scope = scope[sep[i]];
 	}
-}
+};
 
 extend = function(dest, src) {
 	for (var k in src) {
@@ -35,7 +47,7 @@ function2Array = function(args) {
 		ret.push(args(i));
 	}
 	return ret;
-}
+};
 
 // 这个函数是在浏览器里工作很好，WSH中报错
 dump2 = function(kv) {
@@ -51,55 +63,67 @@ dump2 = function(kv) {
 		return kv;
 	}
 	return kv;
-}
+};
 
-// 这个函数是Windows.JScript脚本专用的
-dump = function(obj) {
-	var ret = [],
-		k,
-		field,
-		begin = '',
-		end = '';
-	// 如果是object类型，需要遍历每一个元素
-	if (typeof(obj) == 'object') {
-		// length属性说明是一个数组
-		if (typeof(obj.length) != 'undefined') {
-			// 通过下标确实可以访问
-			if (typeof(obj[0]) != 'undefined') {
-				// 作为数组访问
-				begin = '[';
-				for (k = 0; k < obj.length; k++) {
-					field = obj[k];
-					ret.push(k + ':' + dump(field));
-				}
-				end = ']';
-			} else {
-				// 作为函数访问
-				begin = '(';
-				for (k = 0; k < obj.length; k++) {
-					field = obj(k);
-					ret.push(k + ':' + dump(field));
-				}
-				end = ')';
-			}
-		} else {
-			// 没有length属性，普通的对象，可以遍历keys
-			begin = '{';
-			for (k in obj) {
-				field = obj[k];
-				ret.push(k + ':' + dump(field));
-			}
-			end = '}';
+assertEqual = function(expect, actual, msg) {
+	if (expect !== actual) {
+		if (msg != undefine) {
+			print(msg);
 		}
-	} else if (typeof(obj) == 'string') {
-		return '"'+obj+'"';
-	} else {
-		// 单值直接返回
-		return ''+obj;
+		print(Template('!expect: {$exp}, but: {$act}', {
+			exp: expect,
+			act: actual
+		}));
 	}
-	return begin + ret.join(', ') + end;
+};
+
+dump = function(param, name, indent) {
+	if (typeof param == 'object') {
+		var _indent = indent ? indent: '';
+		var info = name ? _indent + name + ' : {\n': '{\n';
+		indent = _indent + '\t';
+		for (var key in param) {
+			if (typeof param[key] == 'object') {
+				info += dump(param[key], key, indent);
+			} else {
+				if (typeof param[key] == 'string') {
+					param[key] = '\"' + param[key] + '\"';
+				}
+				info += indent + key + ' : ' + param[key] + ',\n';
+			}
+		}
+		info = info.replace(/,\n$/i, '\n');
+		return name ? info + _indent + '},\n': info + '}';
+	} else {
+		return param;
+	}
 };
 
 
+Assert = function() {
+};
+extend(Assert, {
+	_total: 0,
+	_error: 0,
+	equal: function(expect, actual, msg) {
+		Assert._total++;
+		if (expect !== actual) {
+			Assert._error++;
+			if (msg != undefine) {
+				print(msg);
+			}
+			print(Template('!expect: {$exp}, but: {$act}', {
+				exp: expect,
+				act: actual
+			}));
+		}
+	},
+	statistic: function() {
+		print(Template('[Assert] total: {$total}, error: {$error}', {
+			total: Assert._total,
+			error: Assert._error
+		}));		
+	}
+});
 
 })();

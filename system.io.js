@@ -9,8 +9,46 @@ System.IO.FileSystem = function(undefine) {
 		System.IO.FileSystem.fso = new ActiveXObject("Scripting.FileSystemObject");
 	}
 	this.fso = System.IO.FileSystem.fso;
-}
+};
+
 extend(System.IO.FileSystem, {
+	mkdir: function(path) {
+		if (!System.IO.FileSystem.fso.FolderExists(path)) {
+			System.IO.FileSystem.fso.CreateFolder(path);
+		}
+	},
+	getExt: function(filepath, ds) {
+		if (ds == undefine) {
+			ds = '.';
+		}
+		var pos = filepath.lastIndexOf(ds);
+		if (pos == -1) {
+			return '';
+		}
+		var len = filepath.length;
+		return filepath.substring(pos + 1, len);
+	},
+	getFilename: function(filepath, ds) {
+		if (ds == undefine) {
+			ds = '\\';
+		}
+		var pos = filepath.lastIndexOf(ds);
+		if (pos == -1) {
+			return filepath;
+		}
+		var len = filepath.length;
+		return filepath.substring(pos + 1, len);
+	},
+	getPath: function(filepath, ds) {
+		if (ds == undefine) {
+			ds = '\\';
+		}
+		var pos = filepath.lastIndexOf(ds);
+		if (pos == -1) {
+			return '';
+		}
+		return filepath.substring(0, pos);
+	},
 	deleteFile: function(filename) {
 		f1 = runtime.fso.GetFile(filename);
 		f1.Delete();
@@ -41,28 +79,5 @@ extend(System.IO.FileSystem, {
 FileSystem = new System.IO.FileSystem();
 
 
-System.IO.TextFile = function(undefine) {
-	// 静态变量, 用于缓存
-	if (System.IO.TextFile.fso == undefine) {
-		System.IO.TextFile.fso = new ActiveXObject("Scripting.FileSystemObject");
-	}
-	this.fso = System.IO.TextFile.fso;
-}
-
-System.IO.TextFile.prototype = {
-	save: function(filename, content) {
-		f1 = this.fso.CreateTextFile(filename, true); //创建一个文件夹
-		f1.Write(content) ;
-		f1.Close();//关闭
-	},
-	read: function(filename) {
-		var f1 = this.fso.OpenTextFile(filename, 1); 
-		var ret = "";
-		while (!f1.AtEndOfStream)
-			ret += f1.ReadLine()+"\n";
-		f1.Close();
-		return ret; 
-	}
-}
 
 })();
